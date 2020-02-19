@@ -14,12 +14,13 @@ const sync = async() => {
         date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4()     
     );
-
-
+    
+    INSERT INTO authors(first_name, last_name) 
+        VALUES( 'Teddy', 'Roosevelt')
+        
     `;
+    
     await client.query(SQL);
-
-
 };
 
 module.exports = {
