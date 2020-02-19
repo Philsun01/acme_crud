@@ -6,35 +6,51 @@ client.connect();
 
 const sync = async () => {
 	const SQL = `
-    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-    DROP TABLE IF EXISTS articles;
-    DROP TABLE IF EXISTS authors;
+        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        DROP TABLE IF EXISTS articles;
+        DROP TABLE IF EXISTS authors;
 
-    CREATE TABLE authors(
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        first_name VARCHAR(100),
-        last_name VARCHAR(100),
-        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+        CREATE TABLE authors(
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            first_name VARCHAR(100),
+            last_name VARCHAR(100),
+            date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
 
-    CREATE TABLE articles(
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        title VARCHAR(255),
-        body TEXT,
-        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        author_id UUID REFERENCES authors(id)
-    );
+        CREATE TABLE articles(
+            id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+            title VARCHAR(255),
+            body TEXT,
+            date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            author_id UUID REFERENCES authors(id)
+        );
 
-    INSERT INTO authors(first_name, last_name) 
-        VALUES( 'Teddy', 'Roosevelt');
+        INSERT INTO authors(first_name, last_name) 
+            VALUES( 'Teddy', 'Roosevelt');
 
         INSERT INTO articles(title, body, author_id)
-        VALUES( 'The Vigorous Life', 'Dee-lighted!', (SELECT id FROM authors WHERE first_name = 'Teddy'));
-        `;
+            VALUES( 'The Vigorous Life', 'Dee-lighted!', (SELECT id FROM authors WHERE first_name = 'Teddy'));
+    `;
 
 	await client.query(SQL);
 };
 
+const readAuthors = async () => {
+	const authors = await client.query('SELECT * FROM authors');
+	return authors.rows;
+};
+
+const readAuthor = async (id) => {
+	const SQL = 'SELECT * FROM authors WHERE id = $1';
+	const response = await client.query(SQL, [ id ]);
+	return response.rows[0];
+};
+
 module.exports = {
-	sync
+	sync,
+	// createAuthor,
+	readAuthors,
+	readAuthor
+	// updateAuthor,
+	// deleteAuthor,
 };
